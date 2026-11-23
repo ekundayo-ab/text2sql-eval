@@ -1,0 +1,22 @@
+[
+  {"id": "t.stores", "text": "Table stores: one row per physical shop of the chain. city is the German city name with umlauts (München, Köln, Nürnberg)."},
+  {"id": "c.stores.opened_on", "text": "stores.opened_on: the date the shop opened."},
+  {"id": "t.customers", "text": "Table customers: one row per customer account. city is where the customer lives, spelled like stores.city (München, not Munich)."},
+  {"id": "c.customers.signup_date", "text": "customers.signup_date: the date the account was created."},
+  {"id": "c.customers.deleted_at", "text": "customers.deleted_at: set when the customer deleted the account (soft delete). An active customer has deleted_at IS NULL. Their old orders stay in orders."},
+  {"id": "t.products", "text": "Table products: the catalogue. name is unique per category, not across categories."},
+  {"id": "c.products.list_price_cents", "text": "products.list_price_cents: today's list price in euro cents. It is NOT the price customers paid; for that use order_items.unit_price_cents."},
+  {"id": "c.products.is_active", "text": "products.is_active: false when the product is no longer offered. Inactive products can still appear in past orders."},
+  {"id": "t.orders", "text": "Table orders: one row per order, online or in a store. ordered_at is a UTC timestamp."},
+  {"id": "c.orders.channel", "text": "orders.channel: 'online' or 'store'. Online orders have store_id NULL."},
+  {"id": "c.orders.status", "text": "orders.status: 'paid', 'cancelled' (never charged) or 'refunded' (fully refunded). Only 'paid' orders count as sales."},
+  {"id": "t.order_items", "text": "Table order_items: the lines of an order. qty units at unit_price_cents each (the price actually paid, in euro cents), minus discount_cents for the whole line."},
+  {"id": "t.returns", "text": "Table returns: items sent back from paid orders. refund_cents is the money given back for that return, in euro cents. returned_at is a UTC timestamp."},
+  {"id": "r.revenue", "text": "Business rule, revenue: sum over order_items of qty * unit_price_cents - discount_cents, for orders with status = 'paid' only, divided by 100 to get euros. Cancelled and refunded orders never count."},
+  {"id": "r.net_revenue", "text": "Business rule, net revenue: revenue minus refund_cents from returns (divided by 100 for euros). Assign a return to the period of its returned_at."},
+  {"id": "r.money", "text": "Business rule: every *_cents column is euro cents. Report money in euros, rounded to 2 decimals, unless cents are asked for."},
+  {"id": "r.units", "text": "Business rule, units sold: sum of order_items.qty on paid orders."},
+  {"id": "r.aov", "text": "Business rule, average order value (AOV): revenue divided by the number of distinct paid orders, in euros."},
+  {"id": "r.dates", "text": "Business rule, dates: a year or month refers to orders.ordered_at (or returns.returned_at for returns). Quarters are calendar quarters: Q3 is July to September."},
+  {"id": "r.active", "text": "Business rule: a question about the customer base (where customers live, when they signed up, how many there are) means active customers, deleted_at IS NULL. A question about orders or sales includes every customer who ordered, deleted or not."}
+]
